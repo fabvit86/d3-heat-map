@@ -1,0 +1,14 @@
+{
+  "name": "heat-map-visualization",
+  "version": "1.0.0",
+  "description": "FreeCodeCamp Project: Visualize Data with a Heat Map using D3.js",
+  "main": "index.js",
+  "scripts": {
+    "test": "echo \"Error: no test specified\" && exit 1"
+  },
+  "author": "Fabrizio Vitelli",
+  "license": "ISC",
+  "dependencies": {
+    "express": "^4.15.4"
+  }
+}

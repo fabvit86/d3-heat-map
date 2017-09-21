@@ -15,18 +15,13 @@ h1 {
 	background-color: white;
 }
 
-#svgchart .heatPoint {
-	/*stroke: black;
-	stroke-width: 1px;*/
-}
-
 #svgchart text.axisLabel, .smallText {
 	fill: darkblue;
 }
 
 #svgchart .heatPoint.overed {
 	stroke: black;
-	stroke-width: 2px;
+	stroke-width: 1px;
 }
 
 #svgchart g.tick text{
@@ -42,7 +37,7 @@ h1 {
 div.tooltip {
   position: absolute;
   text-align: center;
-  width: 140px;
+  width: 180px;
   min-height: 70px;
   padding: 2px;
   font: 16px sans-serif;

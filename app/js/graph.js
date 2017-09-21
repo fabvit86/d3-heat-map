@@ -1,28 +1,36 @@
 'use strict'
 
 // return the heat color for a specific temperature variance:
-function getHeatColor (tempVariance, heatArray, colors) {
+function getHeatColor (tempVariance, heatArray) {
 	return colors[heatArray.findIndex(t => t > tempVariance)]
 }
+
+// return a month's name:
+function getMonthName (month) {
+	return months[month-1]
+}
+
+const months = ['January', 'February', 'March', 'April', 'May', 'June', 'July', 'August', 'September', 'October', 'November', 'December']
+const colors = [
+	"rgb(0, 84, 35)",
+	"rgb(0, 104, 55)",
+	"rgb(26, 152, 80)",
+	"rgb(102, 189, 99)",
+	"rgb(166, 217, 106)",
+	"rgb(217, 239, 139)",
+	"rgb(254, 224, 139)",
+	"rgb(253, 174, 97)",
+	"rgb(244, 109, 67)",
+	"rgb(215, 48, 39)",
+	"rgb(165, 0, 38)"
+]
 
 const url = 'https://raw.githubusercontent.com/FreeCodeCamp/ProjectReferenceData/master/global-temperature.json'
 $.getJSON(url, (json, textStatus) => {
 	const baseTemperature = json.baseTemperature
 	const data = json.monthlyVariance
 	const numberOfElements = data.length
-	const colors = [
-		"rgb(0, 84, 35)",
-		"rgb(0, 104, 55)",
-		"rgb(26, 152, 80)",
-		"rgb(102, 189, 99)",
-		"rgb(166, 217, 106)",
-		"rgb(217, 239, 139)",
-		"rgb(254, 224, 139)",
-		"rgb(253, 174, 97)",
-		"rgb(244, 109, 67)",
-		"rgb(215, 48, 39)",
-		"rgb(165, 0, 38)"
-	]
+	
 	const firstYear = d3.min(data, (d) => d.year),
 				lastYear  = d3.max(data, (d) => d.year)
 	const formatTime = d3.timeFormat('%B')
@@ -37,7 +45,6 @@ $.getJSON(url, (json, textStatus) => {
 		currTemp += tempStep
 		heatArray.push(currTemp)
 	}
-	// console.log(heatArray, minTempDiff, maxTempDiff, getHeatColor(5.229, heatArray, colors)) // TEST
 
 	const margins = {top: 20, right: 20, bottom: 60, left: 120}
 	const chartHeight = 600 - margins.top - margins.bottom
@@ -77,31 +84,27 @@ $.getJSON(url, (json, textStatus) => {
 	  .attr("height", heatPointHeight)
 	  .attr("x", (d) => x(d.year))
 	  .attr("y", (d) => (d.month - 1) * heatPointHeight)
-	  .attr("fill", (d) => getHeatColor(d.variance, heatArray, colors))
-  	// .attr("r", 4) // circle radius
-  	// .attr("cx", (d) => x(parseTimeToDate(d.Time))) // circle x coord
-   //  .attr("cy", (d) => y(d.Place)) // circle y coord
-   //  .attr("class", (d) => d.Doping ? "doped" : "clean")
-    // .on("mouseover", function(d) {
-    // 	d3.select(this).classed("overed", true) // add "overed" class to the rect
-    // 	tooltip.transition()
-    // 		.duration(300)
-    // 		.style("opacity", 1) // show the tooltip
-    // 	let tooltipContent = d.Name + 
-    // 											"<br><span class='smallText'>Year: " + d.Year + " - Time: " + d.Time +"</span>" + 
-    // 											"<br><span class='smallText'>Rank: " + d.Place + " - Nationality: " + d.Nationality + "</span>"
-    //   if (d.Doping) tooltipContent += "<hr><span class='smallText'>" + d.Doping + "</span>"
-    // 	tooltip.html(tooltipContent)
-    //    .style("left", (d3.event.pageX - d3.select('.tooltip').node().offsetWidth - 5) + "px")
-    //    .style("top", (d3.event.pageY - d3.select('.tooltip').node().offsetHeight) + "px");
-    // })
-    // .on("mouseleave", function(d) {
-    // 	d3.select(this).classed("overed", false)
-    // 	tooltip.transition()
-    // 		.duration(300)
-    // 		.style("opacity", 0)
-    // 	tooltip.html("")
-    // })
+	  .attr("fill", (d) => getHeatColor(d.variance, heatArray))
+    .on("mouseover", function(d) {
+    	const temperature = d3.format(".3f")(baseTemperature + d.variance) // absolute temperature of this month and year
+    	d3.select(this).classed("overed", true) // add "overed" class to the rect
+    	tooltip.transition()
+    		.duration(300)
+    		.style("opacity", 1) // show the tooltip
+    	let tooltipContent = getMonthName(d.month) + " " + d.year +
+    											"<br> Temperature: " + temperature + " C°" +
+    											"<br> Variance: " + d.variance + " C°"
+    	tooltip.html(tooltipContent)
+       .style("left", (d3.event.pageX - d3.select('.tooltip').node().offsetWidth - 5) + "px")
+       .style("top", (d3.event.pageY - d3.select('.tooltip').node().offsetHeight) + "px");
+    })
+    .on("mouseleave", function(d) {
+    	d3.select(this).classed("overed", false)
+    	tooltip.transition()
+    		.duration(300)
+    		.style("opacity", 0)
+    	tooltip.html("")
+    })
 
 	//x axis line:
 	const xAxis = svgchart.append('g')

@@ -1,31 +1,47 @@
 'use strict'
 
+// return the heat color for a specific temperature variance:
+function getHeatColor (tempVariance, heatArray, colors) {
+	return colors[heatArray.findIndex(t => t > tempVariance)]
+}
+
 const url = 'https://raw.githubusercontent.com/FreeCodeCamp/ProjectReferenceData/master/global-temperature.json'
 $.getJSON(url, (json, textStatus) => {
 	const baseTemperature = json.baseTemperature
 	const data = json.monthlyVariance
 	const numberOfElements = data.length
-	const months = [
-		"January",
-		"February",
-		"March",
-		"April",
-		"May",
-		"June",
-		"July",
-		"August",
-		"September",
-		"October",
-		"November",
-		"December"
+	const colors = [
+		"rgb(0, 84, 35)",
+		"rgb(0, 104, 55)",
+		"rgb(26, 152, 80)",
+		"rgb(102, 189, 99)",
+		"rgb(166, 217, 106)",
+		"rgb(217, 239, 139)",
+		"rgb(254, 224, 139)",
+		"rgb(253, 174, 97)",
+		"rgb(244, 109, 67)",
+		"rgb(215, 48, 39)",
+		"rgb(165, 0, 38)"
 	]
 	const firstYear = d3.min(data, (d) => d.year),
 				lastYear  = d3.max(data, (d) => d.year)
 	const formatTime = d3.timeFormat('%B')
+	const maxTempDiff = d3.max(data, (d) => d.variance),
+	      minTempDiff = d3.min(data, (d) => d.variance)
+	const heatSteps = colors.length - 1 // number of heat steps
+	// temperature step between each heat color, based on the difference between the highest and lowest temperature variance:
+	const tempStep = +(d3.format(".2f")((Math.abs(minTempDiff) + Math.abs(maxTempDiff)) / heatSteps))
+	// heat steps array, every element is the max temperature for the corresponding heat color:
+	let heatArray = [], currTemp = minTempDiff
+	while (currTemp < maxTempDiff) {
+		currTemp += tempStep
+		heatArray.push(currTemp)
+	}
+	// console.log(heatArray, minTempDiff, maxTempDiff, getHeatColor(5.229, heatArray, colors)) // TEST
 
 	const margins = {top: 20, right: 20, bottom: 60, left: 120}
 	const chartHeight = 600 - margins.top - margins.bottom
-	const chartWidth = 1000 - margins.left - margins.right
+	const chartWidth = 1300 - margins.left - margins.right
 	const barWidth = chartWidth / numberOfElements
 
 	// x scale (years):
@@ -52,14 +68,16 @@ $.getJSON(url, (json, textStatus) => {
 
   // heat points (rects):
   const heatPointHeight = chartHeight / 12
+  const heatPointWidth = chartWidth / (lastYear - firstYear)
   const heatPoint = svgchart.selectAll("g")
   	.data(data)
   .enter().append("rect")
   	.classed("heatPoint", true)
-  	.attr("width", 10)
+  	.attr("width", heatPointWidth)
 	  .attr("height", heatPointHeight)
 	  .attr("x", (d) => x(d.year))
 	  .attr("y", (d) => (d.month - 1) * heatPointHeight)
+	  .attr("fill", (d) => getHeatColor(d.variance, heatArray, colors))
   	// .attr("r", 4) // circle radius
   	// .attr("cx", (d) => x(parseTimeToDate(d.Time))) // circle x coord
    //  .attr("cy", (d) => y(d.Place)) // circle y coord

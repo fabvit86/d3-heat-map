@@ -16,14 +16,15 @@ h1 {
 }
 
 #svgchart .heatPoint {
-	fill: green;
+	/*stroke: black;
+	stroke-width: 1px;*/
 }
 
 #svgchart text.axisLabel, .smallText {
 	fill: darkblue;
 }
 
-#svgchart circle.overed {
+#svgchart .heatPoint.overed {
 	stroke: black;
 	stroke-width: 2px;
 }

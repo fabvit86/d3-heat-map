@@ -46,7 +46,7 @@ $.getJSON(url, (json, textStatus) => {
 		heatArray.push(currTemp)
 	}
 
-	const margins = {top: 20, right: 20, bottom: 60, left: 120}
+	const margins = {top: 100, right: 20, bottom: 60, left: 120}
 	const chartHeight = 600 - margins.top - margins.bottom
 	const chartWidth = 1300 - margins.left - margins.right
 	const barWidth = chartWidth / numberOfElements
@@ -67,6 +67,46 @@ $.getJSON(url, (json, textStatus) => {
 										.attr("height", chartHeight + margins.top + margins.bottom) // set the height of the chart
 										.append("g") // add this g to set left and top margins
     									.attr("transform", "translate(" + margins.left + "," + margins.top + ")")
+
+  // subtitle:
+  d3.select('#svgchart')
+ 		.append("text")
+ 			.classed("subtitle", true)
+ 			.text("Reference absolute temperature is 8.66 °C. Estimated Jan 1951-Dec 1980.")
+ 			.attr("x", "300px")
+ 			.attr("y", "30px")
+
+  // legend (g element containing the heat colors as rect elements):
+  const legendSquareWidth = 50,
+  		  legendSquareHeight = 20
+	d3.select('#svgchart')
+ 		.append("g")
+ 			.classed("legend", true)
+ 		.selectAll(".legendPoint")
+ 			.data(colors)
+ 		.enter()
+ 			.append("rect")
+ 				.classed("legendPoint", true)
+ 				.attr("fill", (d) => d)
+ 				.attr("width", legendSquareWidth)
+	  		.attr("height", legendSquareHeight)
+	  		.attr("x", (d, i) => (i + 6) * legendSquareWidth)
+	  		.attr("y", "45px")
+	  		.append("text")
+	  			.classed("legendPointText", true)
+ 					.text((d, i) => heatArray[i])
+ 	// legend points text:
+ 	d3.select('#svgchart')
+ 		.append("g")				
+ 			.classed("legend", true)
+ 		.selectAll(".legendPointText")
+ 			.data(heatArray)
+ 		.enter()
+ 			.append("text")
+ 				.classed("legendPointText", true)
+ 				.text((d) => "<" + d3.format(".3f")(d) + " °C")
+ 				.attr("y", "75px")
+ 				.attr("x", (d, i) => (i + 6) * (legendSquareWidth+0.5))
 
   // tooltip div:
   const tooltip = d3.select('#mainContainer').append("div")
@@ -92,8 +132,8 @@ $.getJSON(url, (json, textStatus) => {
     		.duration(300)
     		.style("opacity", 1) // show the tooltip
     	let tooltipContent = getMonthName(d.month) + " " + d.year +
-    											"<br> Temperature: " + temperature + " C°" +
-    											"<br> Variance: " + d.variance + " C°"
+    											"<br> Temperature: " + temperature + " °C" +
+    											"<br> Variance: " + d.variance + " °C"
     	tooltip.html(tooltipContent)
        .style("left", (d3.event.pageX - d3.select('.tooltip').node().offsetWidth - 5) + "px")
        .style("top", (d3.event.pageY - d3.select('.tooltip').node().offsetHeight) + "px");
@@ -115,7 +155,7 @@ $.getJSON(url, (json, textStatus) => {
 	xAxis.append("text")
 		.classed("axisLabel", true)
 		.text("Year")
-		.attr("dx", "20em") // x offset
+		.attr("dx", chartWidth / 2) // x offset
 		.attr("dy", "2.5em") // y offset
   xAxis.selectAll("text").style("text-anchor", "middle") // center x axis ticks' text
 	
@@ -130,32 +170,8 @@ $.getJSON(url, (json, textStatus) => {
  		.attr("id", "yAxisLabel")
  		.classed("axisLabel", true)
  		.text("Month")
- 		.attr("dx", "-13em") // x offset
+ 		.attr("dx", -(chartHeight - 50) / 2) // x offset
  		.attr("dy", "-4.9em") // y offset
  		.attr("transform", "rotate(-90)") // rotate the label vertically
   xAxis.selectAll("text").style("text-anchor", "middle")
-
- 	// legend:
- // 	d3.select('#svgchart')
- // 		.append("circle")
- // 			.attr("r", 4)
- // 			.attr("cx", "10em")
- // 			.attr("cy", "2em")
- // 			.classed("clean", true)
-	// d3.select('#svgchart')
-	// 	.append('text')
-	// 	.text("No doping allegations")
-	// 	.attr("dx", "10.5em")
-	// 	.attr("dy", "2.25em")
-	// d3.select('#svgchart')
- // 		.append("circle")
- // 			.attr("r", 4)
- // 			.attr("cx", "10em")
- // 			.attr("cy", "4em")
- // 			.classed("doped", true)
-	// d3.select('#svgchart')
-	// 	.append('text')
-	// 	.text("Has doping allegations")
-	// 	.attr("dx", "10.5em")
-	// 	.attr("dy", "4.25em")
 })

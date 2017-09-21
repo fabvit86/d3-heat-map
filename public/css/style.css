@@ -46,11 +46,12 @@ div.tooltip {
   pointer-events: none; /* keep the mouseover when over the tooltip */
 }
 
-.tooltip span.gross {
-	font-weight: bold;
+.subtitle {
+	font-family: sans-serif;
+	font-size: 20px;
 }
 
-.smallText {
+.legendPointText {
 	font-size: 10px;
 }
 
